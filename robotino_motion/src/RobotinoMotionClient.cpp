@@ -2,13 +2,17 @@
 /*
  * RobotinoMotionClient.cpp
  *
- *  Created on: 2014
- *      Author: expertinos.unifei@gmail.com
+ *  Created on: 2011
+ *      Author: indorewala@servicerobotics.eu
+ *	Modified on: 2014
+ *		Author: expertinos.unifei@gmail.com
  */
 
 #include "RobotinoMotionClient.h"
 #include <queue>
 #include <iostream>
+#include "findpath.cpp"
+
 
 RobotinoMotionClient::RobotinoMotionClient():
 	client_( "motion", false),
@@ -26,7 +30,8 @@ RobotinoMotionClient::~RobotinoMotionClient()
 void RobotinoMotionClient::goalCallback( const robotino_motion::MotionGoalConstPtr& msg )
 {
 	robotino_motion::MotionGoal goal;
-	goal.move_x = msg->move_x;
+
+/*	goal.move_x = msg->move_x;
 	goal.move_y = msg->move_y;
 	goal.move_phi = msg->move_phi;
 	goal.movement_type = msg->movement_type;
@@ -39,9 +44,22 @@ void RobotinoMotionClient::goalCallback( const robotino_motion::MotionGoalConstP
 			"(%f, %f, %f, %d, %d, %d, %d)",
 			goal.move_x, goal.move_y, goal.move_phi, goal.movement_type, goal.task_type,
 			goal.interruption_condition, goal.alignment_device);
+*/
+	astar();
 
-	if(goal.alignment_device == 0)
+	goal.move_phi = 0;
+	goal.movement_type = 0;
+	goal.task_type = 0;
+	goal.interruption_condition = 0;
+	goal.alignment_device = 0;
+
+	if(!queue.empty())
 	{
+
+		goal.move_x = queue.front();
+		queue.pop();
+		goal.move_y = queue.front();
+		queue.pop();
 		queue_.push(goal);
 		ROS_INFO("%d", queue_.size());
 	}else

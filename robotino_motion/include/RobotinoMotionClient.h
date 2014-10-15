@@ -1,8 +1,10 @@
 /*
  * RobotinoMotionClient.h
  *
- *  Created on: 2014
- *      Author: expertinos.unifei@gmail.com
+ *  Created on: 2011
+ *      Author: indorewala@servicerobotics.eu
+ *	Modified on: 2014
+ *		Author: expertinos.unifei@gmail.com
  */
 
 #ifndef ROBOTINOMOTIONCLIENT_H_

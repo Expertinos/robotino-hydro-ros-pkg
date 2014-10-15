@@ -55,6 +55,7 @@ add_dependencies(
 
 add_executable(robotino_motion_client_node 
 	src/robotino_motion_client_node.cpp
+	src/findpath.cpp
 	src/RobotinoMotionClient.cpp
 	)
 
