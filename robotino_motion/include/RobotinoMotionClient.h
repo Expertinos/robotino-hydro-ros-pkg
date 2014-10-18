@@ -1,8 +1,10 @@
 /*
  * RobotinoMotionClient.h
  *
- *  Created on: 2014
- *      Author: expertinos.unifei@gmail.com
+ *  Created on: 2011
+ *      Author: indorewala@servicerobotics.eu
+ *	Modified on: 2014
+ *		Author: expertinos.unifei@gmail.com
  */
 
 #ifndef ROBOTINOMOTIONCLIENT_H_
@@ -10,6 +12,7 @@
 
 #include <ros/ros.h>
 #include <actionlib/client/simple_action_client.h>
+#include <std_msgs/Bool.h>
 #include "robotino_motion/MotionGoal.h"
 #include "robotino_motion/MotionAction.h"
 #include "robotino_motion/MotionResult.h"
@@ -30,6 +33,8 @@ private:
 
 	ros::Subscriber goal_sub_;
 
+	ros::Publisher has_arrived_pub_;
+
 	Client client_;
 
 	robotino_motion::MotionGoal goal_;
@@ -44,7 +49,6 @@ private:
 
 	void doneCallBack ( const actionlib::SimpleClientGoalState& state,
 			const robotino_motion::MotionResultConstPtr& result);
-
 
 public:
 	bool checkServer();

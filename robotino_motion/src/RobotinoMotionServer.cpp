@@ -1,8 +1,10 @@
 /*
  * RobotinoMotionServer.cpp
  *
- *  Created on: 2014
- *      Author: expertinos.unifei@gmail.com
+ *  Created on: 2011
+ *      Author: indorewala@servicerobotics.eu
+ *	Modified on: 2014
+ *		Author: expertinos.unifei@gmail.com
  */
 
 #include "RobotinoMotionServer.h"
