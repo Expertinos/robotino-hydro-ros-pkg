@@ -5,18 +5,14 @@ from geometry_msgs.msg import Point
 from move_base_msgs.msg import MoveBaseGoal
 from move_base_msgs.msg import MoveBaseAction
 from geometry_msgs.msg import Quaternion
+from robotino_motion.msg import AlignAction
+from robotino_motion.msg import AlignGoal
 from tf import transformations
 import tf
 import actionlib
 from actionlib import SimpleActionClient
 
-
-'''def ligarNavigation(area, seq):
-	rospy.logwarn("Indo para pose "+ str(area[1]) + str(area[2]))
-	time.sleep(30)
-	rospy.logwarn("Cheguei no pose "+ str(area[1]) + str(area[2]))
-'''
-def ligarNavigation(area, seq):
+def ligarNavigation(area, seq, nome):
 	#send_goal
 	client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
 
@@ -39,9 +35,7 @@ def ligarNavigation(area, seq):
 	#pub = rospy.Publisher("move_base_simple/goal", PoseStamped)
 	#pub.publish(goal.target_pose)
 
-	print "antes do wait"
         client.wait_for_server()
-	print "depois do wait"
 
         # Sends the goal to the action server.
         client.send_goal(goal)
@@ -49,7 +43,24 @@ def ligarNavigation(area, seq):
         # Waits for the server to finish performing the action.
         client.wait_for_result()
 
-	rospy.logwarn("Cheguei no pose "+ str(area[1]) +" "+ str(area[2]))
+	rospy.logwarn("Cheguei no pose "+ str(area[1]) +" "+ str(area[2]) +"Area = "+nome)
+
+	if nome == "Casa":
+		rospy.logwarn("Vou alinhar atras")
+		client = actionlib.SimpleActionClient('align', AlignAction)
+		client.wait_for_server()
+
+		goal = AlignGoal()
+		goal.alignment_mode = 3
+		goal.distance_mode = 1
+
+		# Sends the goal to the action server.
+		client.send_goal(goal)
+
+		# Waits for the server to finish performing the action.
+		client.wait_for_result()
+	
+
 	'''if client.getState() == actionlib.SimpleClientGoalState.SUCCEEDED:
 		ROS_INFO("Cheguei no pose "+ str(area[0]) + str(area[1]));
 	else:

@@ -22,10 +22,10 @@ casa_x: 1.223
 casa_y: -2.027
 casa_orientation: -1.418
 
-deposito_x: -0.283
-deposito_y: -2.845
+deposito_x: 0.419
+deposito_y: -2.828
 deposito_orientation: 1.866
 
-pedido_x: 2.912
-pedido_y: -2.174
+pedido_x: 2.290
+pedido_y: -2.381
 pedido_orientation: 1.770

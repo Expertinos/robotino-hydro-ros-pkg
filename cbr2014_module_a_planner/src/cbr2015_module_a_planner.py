@@ -4,6 +4,7 @@ import roslib; roslib.load_manifest('cbr2015_module_a_planner')
 import rospy
 import smach
 import smach_ros
+import sys
 from Casa import casa
 from LigarNavigation import ligarNavigation
 from BuscarPedido import buscarPedido
@@ -30,10 +31,19 @@ seq = 0
 # define state Foo
 class Casa(smach.State):
     def __init__(self):
-        smach.State.__init__(self, outcomes=['iniciar'])
+        smach.State.__init__(self, outcomes=['iniciar', 'termina'])
         self.counter = 0
 
     def execute(self, userdata):
+	global new_order
+        global termina
+	rospy.logwarn("Esperando pedido")
+	while new_order == False:
+		#rospy.logwarn("while")
+		if termina == True:
+			return 'termina'
+	rospy.logwarn("passou o while" + str(new_order))
+	new_order = False
         casa()
         return 'iniciar'
 
@@ -50,32 +60,38 @@ class LigarNavigation(smach.State):
 	global pedidos
 
 	seq += 1
+	area_numero = 1
 
 	if led == True:
-		ligarNavigation(Areas.DEPOSITO, seq)
+		ligarNavigation(Areas.DEPOSITO, seq, "Deposito")
 		return 'indo_deposito'
 
         if self.count == 0:
             self.count += 1
-    	    ligarNavigation(Areas.PEDIDOS, seq)
+    	    ligarNavigation(Areas.PEDIDOS, seq, "Pedidos")
 	    return 'coleta_pedido'
 
 	if len(areas_produtos) == 0 or len(pedidos) == 0:
-		ligarNavigation(Areas.CASA, seq)
+		ligarNavigation(Areas.CASA, seq, "Casa")
 		return 'voltar_casa'
 
-        ligarNavigation(areas_produtos.pop(0), seq)
+        ligarNavigation(areas_produtos.pop(0), seq, "Area"+str(area_numero))
+	area_numero += 1
         return 'coleta_produto'
 
 class BuscarPedido(smach.State):
     def __init__(self):
-	smach.State.__init__(self, outcomes=['peguei_pedido'])
+	smach.State.__init__(self, outcomes=['peguei_pedido', 'voltar_casa'])
 
     def execute(self, userdata):
 	global pub
 	global pedidos
 
 	pedidos = buscarPedido(pub)
+	if len(pedidos) == 0:
+		ligarNavigation(Areas.CASA, seq, "Casa")
+		return 'voltar_casa'
+
         return 'peguei_pedido'
 
 class BuscarProduto(smach.State):
@@ -121,7 +137,10 @@ class PegarProduto(smach.State):
 				input_keys=['produto'])
 
     def execute(self, userdata):
+	global produtos
+
 	pegarProduto(userdata.produto)
+	pedidos.remove(userdata.produto)
         return 'peguei'
 
 class EntregarProduto(smach.State):
@@ -148,11 +167,27 @@ class IrParaCasa(smach.State):
 
     def execute(self, userdata):
 	irParaCasa()
+	seta_parametros()
         return 'cheguei'
 
 # main
+def seta_order(req):
+	global new_order
+	new_order = True
+
+
+def finaliza_prova(req):
+    global termina
+    termina = True
+
+
 def main():
     global pub
+    global new_order
+    global termina
+
+    termina = False
+    new_order = False
     #nh = rospy.init_node('cbr2015_modulo_a_node')
     pub = rospy.Publisher('action', String, queue_size=100)
     rospy.logwarn("comecou")
@@ -166,14 +201,14 @@ def main():
     with sm:
         # Add states to the container
         smach.StateMachine.add('casa', Casa(), 
-                               transitions={'iniciar':'ligar_navigation'})
+                               transitions={'iniciar':'ligar_navigation', 'termina':'completo'})
 
         smach.StateMachine.add('ligar_navigation', LigarNavigation(), 
                                transitions={'coleta_pedido':'indo_pedido', 'coleta_produto':'indo_produto', 
 			       'voltar_casa':'indo_casa', 'indo_deposito':'cheguei_deposito'})
 	
         smach.StateMachine.add('indo_pedido', BuscarPedido(),
-			       transitions={'peguei_pedido':'ligar_navigation'})
+			       transitions={'peguei_pedido':'ligar_navigation', 'voltar_casa':'indo_casa'})
 
         smach.StateMachine.add('indo_produto', BuscarProduto(),
 			       transitions={'area_produto':'ligar_vision'})
@@ -196,7 +231,7 @@ def main():
 			       transitions={'led_piscado':'ligar_navigation'})
 
         smach.StateMachine.add('indo_casa', IrParaCasa(),
-			       transitions={'cheguei':'completo'})
+			       transitions={'cheguei':'casa'})
 
 
     sis = smach_ros.IntrospectionServer('server_name', sm, '/SM_ROOT')
@@ -251,9 +286,18 @@ def seta_parametros():
     Areas.PEDIDOS[2] = rospy.get_param("/cbr2015_modulo_a_node/pedido_y")
     Areas.PEDIDOS[3] = rospy.get_param("/cbr2015_modulo_a_node/pedido_orientation")
 
+def voltar(req):
+	ligarNavigation(Areas.CASA, seq, "Casa")
+	
+	sys.exit()
+	
+
 if __name__ == '__main__':
     rospy.init_node('cbr2015_modulo_a_node')
     rospy.loginfo("cbr2015_modula_a node is up and running!!!")
+    s = rospy.Service('voltar_para_casa', Empty, voltar)
+    s = rospy.Service('new_order', Empty, seta_order)
+    s = rospy.Service('finaliza_prova', Empty, finaliza_prova)
     #s = rospy.Service('get_started', Empty, main)    
     seta_parametros()
     main()

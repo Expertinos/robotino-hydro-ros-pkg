@@ -77,7 +77,7 @@ void AlignServer::controlLoop()
 {	
 	double vel_x = 0, vel_y = 0, vel_phi = 0;
 	float K = .9, K_PHY = 10;
-	float min_tolerance = 0.25, max_tolerance = 0.30, phy_tolerance = 0.005;
+	float min_tolerance = 0.35, max_tolerance = 0.40, phy_tolerance = 0.005;
 	float mean_value = (fabs(left_ir_) + fabs(right_ir_)) / 2;
 	float error_min = mean_value - min_tolerance;
 	float error_max = mean_value - max_tolerance;
