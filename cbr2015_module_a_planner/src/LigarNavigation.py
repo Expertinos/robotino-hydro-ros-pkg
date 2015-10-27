@@ -106,7 +106,7 @@ def ligarNavigation(area, seq, nome):
 		goal = AlignGoal()
 
 		goal.alignment_mode = 1
-		goal.distance_mode = 1
+		goal.distance_mode = 0
 
 		# Sends the goal to the action server.
 		client.send_goal(goal)
@@ -119,13 +119,13 @@ def ligarNavigation(area, seq, nome):
 		client.wait_for_server()
 
 		goal.alignment_mode = 3
-		goal.distance_mode = 1
+		goal.distance_mode = 0
 
 		# Sends the goal to the action server.
 		client.send_goal(goal)
-
 		# Waits for the server to finish performing the action.
 		client.wait_for_result()
+		rospy.logwarn(client.get_result())
 
 	
 
