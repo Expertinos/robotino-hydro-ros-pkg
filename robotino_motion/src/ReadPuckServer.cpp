@@ -113,7 +113,7 @@ void ReadPuckServer::controlLoop()
 		else
 		{
 			srv.request.verify_markers = false;
-		}	
+		}
 		for (int i = 0; i < valid_colors_.size(); i++)
 		{
 			srv.request.color = valid_colors_[i];
@@ -131,22 +131,25 @@ void ReadPuckServer::controlLoop()
 			}
 			if (!number_of_markers.empty())
 			{
-				for (int j = 0; j < number_of_markers.size(); i++)
+				for (int j = 0; j < number_of_markers.size(); j++)
 				{
 					Puck puck;
 					puck.color = color;
 					puck.number_of_markers = number_of_markers[j];
-					updatePucks(puck);		
+					updatePucks(puck);
 				}
 			}
 		}
 	}
 	if ((ros::Time::now() - reading_start_).toSec() > READING_DEADLINE) // 100%
 	{
+		ROS_INFO("No if");
 		if (state_ == read_puck_states::HEADING_TOWARD_PUCK)
 		{
+			ROS_INFO("No segundo if");
 			reading_start_ = ros::Time::now();
-			state_ == read_puck_states::HEADING_BACKWARD_PUCK;
+			state_ = read_puck_states::HEADING_BACKWARD_PUCK;
+			std::cout << " " << state_ << std::endl;   
 		}
 		else 
 		{
@@ -181,6 +184,7 @@ void ReadPuckServer::controlLoop()
 	{
 		percentage_ = percentage;
 	}
+	ROS_INFO("%f, %f, %f", vel_x, vel_y, vel_phi);
 	setVelocity(vel_x, vel_y, vel_phi);
 	publishVelocity();
 }
